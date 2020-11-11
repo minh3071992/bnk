@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_customer_category,voucher.customer_category,model_customer_category,base.group_user,1,1,1,1
+access_voucher_program,voucher.voucher_program,model_voucher_program,base.group_user,1,1,1,1
+access_voucher_rule,voucher.voucher_rule,model_voucher_rule,base.group_user,1,1,1,1
+access_voucher,voucher.voucher_voucher,model_voucher_voucher,base.group_user,1,1,1,1

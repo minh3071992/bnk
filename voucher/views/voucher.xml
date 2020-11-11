@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+        <!-- Voucher -->
+        <record model="ir.actions.act_window" id="voucher_program_list_action">
+            <field name="name">Voucher Programs</field>
+            <field name="res_model">voucher.program</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">Create the first course
+                </p>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="voucher_program_form_view">
+            <field name="name">voucher.program.form</field>
+            <field name="model">voucher.program</field>
+            <field name="priority">10</field>
+            <field name="arch" type="xml">
+                <form string="Voucher Program Form">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="expiration_date"/>
+                            </group>
+                            <group>
+                                <field name="start_date"/>
+                                <field name="end_date"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Participants">
+                                <field name="customer_category_ids"></field>
+                            </page>
+                            <page string="Rules">
+                                <field name="voucher_rule_ids">
+                                    <tree string="Program Rules">
+                                        <field name="name"/>
+                                        <field name="rate"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="voucher_program_form_view">
+            <field name="name">voucher.program.form</field>
+            <field name="model">voucher.program</field>
+            <field name="priority">20</field>
+            <field name="arch" type="xml">
+                <tree>
+                    
+                </tree>
+            </field>
+        </record>
+
+        <menuitem id="main_voucher_menu" name="Voucher"/>
+        
+        <menuitem id="voucher_menu" name="Voucher" parent="main_voucher_menu"/>
+
+        <menuitem id="voucher_programs_menu" name="Voucher Programs" parent="voucher_menu"
+                  action="voucher_program_list_action"/>
+
+
+       <!-- Res.Partner -->
+       <record model="ir.actions.act_window" id="customer_category_list_action">
+            <field name="name">Customer Category</field>
+            <field name="res_model">customer.category</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">Create the first course
+                </p>
+            </field>
+        </record>
+
+        <menuitem id="customer_category_menu" name="Customer Categories" parent="main_voucher_menu"
+                  action="customer_category_list_action"/>
+
+    <!-- Report  -->
+    <record id="report_voucher" model="ir.actions.report">
+        <field name="name">Voucher Program Report</field>
+        <field name="model">voucher.program</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">voucher.report_voucher_program_view</field>
+    </record>
+
+
+</odoo>
