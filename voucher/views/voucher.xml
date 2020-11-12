@@ -45,17 +45,7 @@
                 </form>
             </field>
         </record>
-
-        <record model="ir.ui.view" id="voucher_program_form_view">
-            <field name="name">voucher.program.form</field>
-            <field name="model">voucher.program</field>
-            <field name="priority">20</field>
-            <field name="arch" type="xml">
-                <tree>
-                    
-                </tree>
-            </field>
-        </record>
+        
 
         <menuitem id="main_voucher_menu" name="Voucher"/>
         
@@ -78,14 +68,5 @@
 
         <menuitem id="customer_category_menu" name="Customer Categories" parent="main_voucher_menu"
                   action="customer_category_list_action"/>
-
-    <!-- Report  -->
-    <record id="report_voucher" model="ir.actions.report">
-        <field name="name">Voucher Program Report</field>
-        <field name="model">voucher.program</field>
-        <field name="report_type">qweb-pdf</field>
-        <field name="report_name">voucher.report_voucher_program_view</field>
-    </record>
-
 
 </odoo>

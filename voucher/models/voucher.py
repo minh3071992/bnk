@@ -5,7 +5,7 @@ from odoo import api, fields, models
 
 class Voucher(models.Model):
     _name = 'voucher.voucher'
-    _decription = "Voucher code"
+    _description = "Voucher code"
 
     @api.model
     def _generate_code(self):

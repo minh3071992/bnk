@@ -29,8 +29,9 @@ class VoucherRule(models.Model):
     @api.constrains('min_quantity', 'max_quantity')
     def _check_rule_quantity(self):
         for record in self:
-            if record.min_quantity > record.max_quantity:
-                raise ValidationError('Max_quantity should be greater than min_quantity')
+            if record.max_quantity != 0:
+                if record.min_quantity > record.max_quantity:
+                    raise ValidationError('Max_quantity should be greater than min_quantity')
 
     @api.constrains('min_quantity')
     def _check_min_quantity(self):
@@ -56,3 +57,5 @@ class VoucherRule(models.Model):
             else:
                 record.name = '%s < Total saleorder =< %s' %(record.min_quantity, record.max_quantity)
         return record.name
+
+            
