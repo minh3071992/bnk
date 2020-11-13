@@ -11,13 +11,37 @@
             </field>
         </record>
 
+        <record id="voucher_program_tree_view" model="ir.ui.view">
+            <field name="name">voucher.program.tree.view</field>
+            <field name="model">voucher.program</field>
+            <field name="arch" type="xml">
+                <tree string="Program">
+                    <field name="name"/>
+                    <field name="start_date"/>
+                    <field name="end_date"/>
+                    <field name="expiration_date"/>
+                    <field name="customer_category_ids"/>
+                </tree>
+            </field>
+        </record>
+
         <record model="ir.ui.view" id="voucher_program_form_view">
             <field name="name">voucher.program.form</field>
             <field name="model">voucher.program</field>
             <field name="priority">10</field>
             <field name="arch" type="xml">
                 <form string="Voucher Program Form">
+                    <header>
+                        <button string='Report' class='btn-primary' type='object' name='action_report'/>
+                        <button string='Confirm' class='btn-primary' type='object' name='action_confirm'
+                        attrs="{'invisible': [('state', '!=', 'draft')]}"/>
+                        <button string='Done' class='btn-primary' type='object' name='action_done'
+                        attrs="{'invisible': [('state', '!=', 'confirm')]}"/>
+                    </header>
                     <sheet>
+                        <header>
+                            <field name="state" widget="statusbar"/>
+                        </header>
                         <group>
                             <group>
                                 <field name="name"/>
@@ -40,13 +64,49 @@
                                     </tree>
                                 </field>
                             </page>
+                            <page string="Voucher">
+                                <field name="voucher_voucher_ids">
+                                    <tree string="Voucher">
+                                        <field name="name"/>
+                                        <field name="expiration_date"/>
+                                        <field name="partner_id"/>
+                                        <field name="value"/>
+                                        <field name="state"/>
+                                    </tree>
+                                </field>
+                            </page>
                         </notebook>
                     </sheet>
                 </form>
             </field>
         </record>
-        
 
+        <record model="ir.ui.view" id="voucher_program_form_report">
+            <field name="name">voucher.program.report</field>
+            <field name="model">voucher.program</field>
+            <field name="priority">20</field>
+            <field name="arch" type="xml">
+                <form string='Voucher Program Form Report'>
+                    <sheet>
+                        <group>
+                            <field name='voucher_partner_temp_ids'>
+                                <tree>
+                                    <field name="partner_id">
+                                        <field name='name'/>
+                                    </field>
+                                    <field name="sale_order_ids">
+                                        <field name="name"/>
+                                    </field>
+                                    <field name="total_saleorder"/>
+                                    <field name="voucher_value"/>
+                                </tree>
+                            </field>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        
         <menuitem id="main_voucher_menu" name="Voucher"/>
         
         <menuitem id="voucher_menu" name="Voucher" parent="main_voucher_menu"/>
@@ -61,12 +121,42 @@
             <field name="res_model">customer.category</field>
             <field name="view_mode">tree,form</field>
             <field name="help" type="html">
-                <p class="o_view_nocontent_smiling_face">Create the first course
+                <p class="o_view_nocontent_smiling_face">Create the first customer category
                 </p>
             </field>
         </record>
 
         <menuitem id="customer_category_menu" name="Customer Categories" parent="main_voucher_menu"
                   action="customer_category_list_action"/>
+
+        <!-- Voucher.voucher -->
+         <record model="ir.actions.act_window" id="voucher_voucher_list_action">
+            <field name="name">Voucher</field>
+            <field name="res_model">voucher.voucher</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">Create the first voucher
+                </p>
+            </field>
+        </record>
+
+        <record id="voucher_voucher_tree_view" model="ir.ui.view">
+            <field name="name">voucher.voucher.tree.view</field>
+            <field name="model">voucher.voucher</field>
+            <field name="arch" type="xml">
+                <tree string="Voucher">
+                    <field name="name"/>
+                    <field name="voucher_program_id"/>
+                    <field name="expiration_date"/>
+                    <field name="partner_id"/>
+                    <field name="value"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+        
+        <menuitem id="voucher_voucher_menu" name="Voucher created" parent="main_voucher_menu"
+                  action="voucher_voucher_list_action"/>
+
 
 </odoo>

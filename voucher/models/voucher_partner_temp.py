@@ -13,7 +13,7 @@ class VoucherPartnerTemp(models.Model):
     total_saleorder = fields.Float(compute='_compute_total_saleorder', string='Total sale order')
     voucher_value = fields.Float(compute='_compute_voucher_value', string='Voucher value')
     voucher_program_id = fields.Many2one('voucher.program', compute='_compute_voucher_program_id', string='Voucher Program ID', store=True)
-    sale_order_ids = fields.Many2many('sale.order', compute='_compute_sale_order_ids' string='Sale Order')
+    sale_order_ids = fields.Many2many('sale.order', compute='_compute_sale_order_ids', string='Sale Order')
 
     def _compute_total_saleorder(self):
         for record in self:
@@ -56,4 +56,4 @@ class VoucherPartnerTemp(models.Model):
             voucher_program = self.env['voucher.program'].search([('name', '=', record.voucher_program_name)])
             partner = record.partner_id
             sale_orders = self.env['sale.order'].search([('partner_id', '=', partner.id), ('state', 'in', ('sale', 'done')), ('date_order', '>=', voucher_program.start_date), ('date_order', '<=', voucher_program.end_date)])
-            record.sale_order_ids = (6, 0 , sale_orders.mapped('id'))
+            record.sale_order_ids = [(6, 0 , sale_orders.mapped('id'))]

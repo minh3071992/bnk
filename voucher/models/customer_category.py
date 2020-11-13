@@ -8,4 +8,4 @@ class CustomerCategory(models.Model):
 
     name = fields.Char(string='Title', required=True)
     res_partner_ids = fields.Many2many('res.partner', string="Customers")
-    voucher_program_ids = fields.Many2many('voucher.program', string="Voucher Programs")
+    voucher_program_ids = fields.Many2many('voucher.program', string="Voucher Programs", readonly=True)

@@ -11,7 +11,7 @@ class VoucherRule(models.Model):
     min_quantity = fields.Float(string="Min sale order")
     max_quantity = fields.Float(string="Max sale order")
     rate = fields.Float(string="Voucher rate", required=True)
-    voucher_program_id = fields.Many2one('voucher.program', string="Voucher Program", ondelete='cascade')
+    voucher_program_id = fields.Many2one('voucher.program', string="Voucher Program", ondelete='cascade', readonly=True)
 
     def check_rule(self, val):
         if val > self.min_quantity and val < self.max_quantity:
@@ -46,6 +46,12 @@ class VoucherRule(models.Model):
             if record.max_quantity != 0:
                 if record.max_quantity < 0:
                     raise ValidationError('Max_quantity should be greater than 0')
+
+    @api.constrains('both_quantity')
+    def _check_both_quantity(self):
+        for record in self:
+            if record.max_quantity == 0 and record.min_quantity == 0:
+                raise ValidationError('Both quantity should not equal 0')
 
     @api.depends('min_quantity', 'max_quantity')
     def _compute_name(self):
