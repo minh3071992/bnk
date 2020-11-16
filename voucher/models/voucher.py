@@ -18,5 +18,7 @@ class Voucher(models.Model):
     value = fields.Float(string="Voucher value", readonly=True)
     state = fields.Selection([
         ('ongoing', 'Ongoing'),
-        ('expired', 'Expired')
+        ('expired', 'Expired'),
+        ('used', 'Used')
     ], required=True, default='ongoing')
+    product_id = fields.Many2one('product.product', string="Voucher in product", ondelete='cascade', readonly=True)

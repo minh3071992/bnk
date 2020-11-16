@@ -13,7 +13,7 @@ class VoucherProgram(models.Model):
     expiration_date = fields.Datetime(required=True)
     customer_category_ids = fields.Many2many('customer.category', string='Participants')
     voucher_rule_ids = fields.One2many('voucher.rule', 'voucher_program_id', string='Voucher rules')
-    voucher_partner_temp_ids = fields.One2many('voucher.partner.temp', 'voucher_program_id', string='Voucher Report')
+    voucher_report_ids = fields.One2many('voucher.report', 'voucher_program_id', string='Voucher Report')
     state = fields.Selection([
         ('draft', 'Draft'),
         ('confirm', 'Confirm'),
@@ -41,7 +41,7 @@ class VoucherProgram(models.Model):
         list1 = {'voucher_program_name': val['name']}
         for x in partner:
             list1['partner_id'] = x.id
-            self.env['voucher.partner.temp'].sudo().create(list1)
+            self.env['voucher.report'].sudo().create(list1)
         return super(VoucherProgram, self).create(val)
     
     def action_report(self):
@@ -55,18 +55,33 @@ class VoucherProgram(models.Model):
             'views': [(form_view_id, 'form')],
             'target': 'new',
             'res_id': self.id,
-            'domain': [('voucher_partner_temp_ids.voucher_value', '!=', 0)]  
+            'domain': [('voucher_report_ids.voucher_value', '!=', 0)]  
         }
     
     def action_confirm(self):
         self.state = 'confirm'
         list1 = {}
-        for record in self.voucher_partner_temp_ids:
+        list2 = {}
+        for record in self.voucher_report_ids:
             if record.voucher_value != 0:
                 list1['voucher_program_id'] = record.voucher_program_id.id
                 list1['partner_id'] = record.partner_id.id
                 list1['value'] = record.voucher_value
                 self.env['voucher.voucher'].sudo().create(list1)
+                list2 = {
+                    'name': 'Voucher %s for %s' %(self.name, record.partner_id.name),
+                    'type': 'service',
+                    'taxes_id': False,
+                    'supplier_taxes_id': False,
+                    'sale_ok': False,
+                    'purchase_ok': False,
+                    'invoice_policy': 'order',
+                    'lst_price': -record.voucher_value,
+                }
+                self.env['product.product'].sudo().create(list2)
+                voucher = self.env['voucher.voucher'].sudo().search([('voucher_program_id', '=',
+                            record.voucher_program_id.id),('partner_id', '=', record.partner_id.id)])
+                product = self.env['product.product'].sudo().search([('name', 'like','%%s%')])
         return {}
 
     def action_done(self):
@@ -83,38 +98,31 @@ class VoucherProgram(models.Model):
     ]
 
     def write(self, val):
-        try:
-            val['name']
-            val['customer_category_ids']
-            records = self.voucher_partner_temp_ids
+        if self.state == 'confirm' or self.state == 'done':
+            raise ValidationError('Cannot edite confirm or done voucher program')
+        if (val.get['name', False] and val.get['customer_category_ids', False]:
+            records = self.voucher_report_ids
             records.unlink()
             cus_cat_ids = val['customer_category_ids'][0][2]
             partner = self.env['res.partner'].search([('customer_category_ids', 'in', cus_cat_ids)])
             list1 = {'voucher_program_name': val['name']}
             for x in partner:
                 list1['partner_id'] = x.id
-                self.env['voucher.partner.temp'].sudo().create(list1)
+                self.env['voucher.report'].sudo().create(list1)
             return super(VoucherProgram, self).write(val)
-        except:
-            try:
-                val['name']
-                records = self.voucher_partner_temp_ids
-                list1 = {'voucher_program_name': val['name']}
-                records.write(list1)
-                return super(VoucherProgram, self).write(val)
-            except:
-                try:
-                    val['customer_category_ids']
-                    records = self.voucher_partner_temp_ids
-                    records.unlink()
-                    cus_cat_ids = val['customer_category_ids'][0][2]
-                    partner = self.env['res.partner'].search([('customer_category_ids', 'in', cus_cat_ids)])
-                    list1 = {'voucher_program_name': self.name}
-                    for x in partner:
-                        list1['partner_id'] = x.id
-                        self.env['voucher.partner.temp'].sudo().create(list1)
-                        return super(VoucherProgram, self).write(val)
-                except:
-                    return super(VoucherProgram, self).write(val)
-
-   
+        if val.get['name', False]:
+            records = self.voucher_report_ids
+            list1 = {'voucher_program_name': val['name']}
+            records.write(list1)
+            return super(VoucherProgram, self).write(val)
+        if val.get['customer_category_ids', False]:
+            records = self.voucher_reporst_ids
+            records.unlink()
+            cus_cat_ids = val['customer_category_ids'][0][2]
+            partner = self.env['res.partner'].search([('customer_category_ids', 'in', cus_cat_ids)])
+            list1 = {'voucher_program_name': self.name}
+            for x in partner:
+                list1['partner_id'] = x.id
+                self.env['voucher.report'].sudo().create(list1)
+            return super(VoucherProgram, self).write(val)
+        return super(VoucherProgram, self).write(val)

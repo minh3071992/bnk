@@ -4,8 +4,8 @@ from datetime import datetime, timedelta
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
 
-class VoucherPartnerTemp(models.Model):
-    _name = 'voucher.partner.temp'
+class VoucherReport(models.Model):
+    _name = 'voucher.report'
     _description = 'Voucher Report'
 
     partner_id = fields.Many2one('res.partner', string='Partner ID')

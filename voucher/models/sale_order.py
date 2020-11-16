@@ -13,4 +13,5 @@ from odoo.tools import float_is_zero, float_compare
 class SaleOrder(models.Model):
     _inherit = "sale.order"
 
-    voucher_partner_temp_ids = fields.Many2many('voucher.partner.temp', string='Voucher Report ID')
+    voucher_report_ids = fields.Many2many('voucher.report', string='Voucher Report ID')
+    has_voucher = fieldsBoolean('Has voucher?', default='_compute_has_voucher')
