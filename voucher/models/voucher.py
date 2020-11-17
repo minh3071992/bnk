@@ -21,4 +21,5 @@ class Voucher(models.Model):
         ('expired', 'Expired'),
         ('used', 'Used')
     ], required=True, default='ongoing')
-    product_id = fields.Many2one('product.product', string="Voucher in product", ondelete='cascade', readonly=True)
+    product_id = fields.Many2one('product.product', string="Voucher in product", readonly=True)
+    sale_order_id = fields.Many2one('sale.order', string="Sale order use this voucher", readonly=True)

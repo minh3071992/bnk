@@ -2,5 +2,5 @@ id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_customer_category,voucher.customer_category,model_customer_category,,1,1,1,1
 access_voucher_program,voucher.voucher_program,model_voucher_program,,1,1,1,1
 access_voucher_rule,voucher.voucher_rule,model_voucher_rule,,1,1,1,1
-access_voucher,voucher.voucher_voucher,model_voucher_voucher,,1,0,0,0
-access_voucher_report,voucher.voucher_report,model_voucher_report,,1,0,0,0
+access_voucher,voucher.voucher_voucher,model_voucher_voucher,,1,1,1,1
+access_voucher_report,voucher.voucher_report,model_voucher_report,,1,1,1,1

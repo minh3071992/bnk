@@ -81,14 +81,16 @@ class VoucherProgram(models.Model):
                 self.env['product.product'].sudo().create(list2)
                 voucher = self.env['voucher.voucher'].sudo().search([('voucher_program_id', '=',
                             record.voucher_program_id.id),('partner_id', '=', record.partner_id.id)])
-                product = self.env['product.product'].sudo().search([('name', 'like','%%s%')])
+                product = self.env['product.product'].sudo().search([('name', '=', 'Voucher %s for %s' %(self.name, record.partner_id.name))])
+                voucher.write({'product_id': product.id})
         return {}
 
     def action_done(self):
         self.state = 'done'
         records = self.env['voucher.voucher'].sudo().search([('voucher_program_id', '=', self.id)])
         for record in records:
-            record.state = 'expired'
+            if not record.state == 'used':
+                record.state = 'expired'
         return {}
 
     _sql_constraints = [
@@ -99,8 +101,8 @@ class VoucherProgram(models.Model):
 
     def write(self, val):
         if self.state == 'confirm' or self.state == 'done':
-            raise ValidationError('Cannot edite confirm or done voucher program')
-        if (val.get['name', False] and val.get['customer_category_ids', False]:
+            raise ValidationError('Cannot edit confirm or done voucher program')
+        if (val.get('name', False) and val.get('customer_category_ids', False)):
             records = self.voucher_report_ids
             records.unlink()
             cus_cat_ids = val['customer_category_ids'][0][2]
@@ -110,12 +112,12 @@ class VoucherProgram(models.Model):
                 list1['partner_id'] = x.id
                 self.env['voucher.report'].sudo().create(list1)
             return super(VoucherProgram, self).write(val)
-        if val.get['name', False]:
+        if val.get('name', False):
             records = self.voucher_report_ids
             list1 = {'voucher_program_name': val['name']}
             records.write(list1)
             return super(VoucherProgram, self).write(val)
-        if val.get['customer_category_ids', False]:
+        if val.get('customer_category_ids', False):
             records = self.voucher_reporst_ids
             records.unlink()
             cus_cat_ids = val['customer_category_ids'][0][2]

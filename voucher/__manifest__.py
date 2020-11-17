@@ -24,6 +24,7 @@
     'data': [
         #'security/security.xml',
         'security/ir.model.access.csv',
+        'wizard/sale_order_apply_voucher.xml',
         # 'templates.xml',
         'views/voucher.xml',
         #'views/partner.xml',
