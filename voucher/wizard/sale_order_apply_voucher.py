@@ -16,7 +16,7 @@ class SaleVoucherApplyCode(models.TransientModel):
         voucher_applied = voucher.search([('name', '=', self.voucher_code)])
         if not voucher_applied:
             raise ValidationError('Wrong voucher code')
-        product = self.env['product.product'].search([('name', '=', 'Voucher %s for %s' %(voucher_applied.voucher_program_id.name, voucher_applied.partner_id.name))])
+        product = voucher_applied.product_id
         if abs(product.lst_price) > sale_order.amount_untaxed:
             product.lst_price = -sale_order.amount_untaxed
         sale_order.sudo().write({'order_line': [(0, False, {'name': product.name, 'product_id': product.id, 'price_unit': product.lst_price, 'product_uom_qty': 1.0, 'product_uom': 1, 'tax_id': []})]})

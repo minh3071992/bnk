@@ -37,11 +37,9 @@
                         attrs="{'invisible': [('state', '!=', 'draft')]}"/>
                         <button string='Done' class='btn-primary' type='object' name='action_done'
                         attrs="{'invisible': [('state', '!=', 'confirm')]}"/>
+                        <field name="state" widget="statusbar"/>
                     </header>
                     <sheet>
-                        <header>
-                            <field name="state" widget="statusbar"/>
-                        </header>
                         <group>
                             <group>
                                 <field name="name"/>
@@ -50,12 +48,10 @@
                             <group>
                                 <field name="start_date"/>
                                 <field name="end_date"/>
+                                <field name="customer_category_ids" widget="many2many_tags"></field>
                             </group>
                         </group>
                         <notebook>
-                            <page string="Participants">
-                                <field name="customer_category_ids"></field>
-                            </page>
                             <page string="Rules">
                                 <field name="voucher_rule_ids">
                                     <tree string="Program Rules">
@@ -168,9 +164,10 @@
                 <xpath expr="//group[@name='note_group']" position="before">
                     <div class="oe_right">
                         <field name="has_voucher" invisible="1"/>
+                        <field name="using_voucher" invisible="1"/>
                         <button name="%(voucher.sale_voucher_apply_code_action)d" class="btn btn-secondary"
                                 string="Voucher" type="action"
-                                attrs="{'invisible': ['|', ('has_voucher', '=', False), ('state', 'not in', ['draft', 'sent', 'sale'])]}"/>
+                                attrs="{'invisible': ['|', '|', ('has_voucher', '=', False), ('state', 'not in', ['draft', 'sent', 'sale']), ('using_voucher', '=', True)]}"/>
                     </div>
                 </xpath>
             </field>
