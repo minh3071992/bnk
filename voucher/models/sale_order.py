@@ -42,7 +42,7 @@ class SaleOrder(models.Model):
         return super(SaleOrder, self).unlink()
 
     def write(self, val):
-        # raise ValidationError(str(self.voucher_ids))
+        # raise ValidationError(str(val))
         if len(self.voucher_ids.mapped('id')) != 0:
             voucher_applied = self.voucher_ids
             if val.get('partner_id', False):
@@ -65,8 +65,8 @@ class SaleOrder(models.Model):
                     if x[0] == 1:
                         order_line = self.env['sale.order.line'].sudo().browse([x[1]])
                         if order_line.product_id.id in product_ids:
-                            raise ValidationError('Cannot change quantity of voucher')
-                        break
+                            if x[2].get('product_uom_qty', 1) != 1.0:
+                                raise ValidationError('Cannot change quantity of voucher')
                     if x[0] == 4:
                         order_line = self.env['sale.order.line'].sudo().browse([x[1]])
                         if order_line.product_id.id in product_ids:
@@ -74,16 +74,27 @@ class SaleOrder(models.Model):
                                 temp_val = val['order_line'].copy()
                                 temp_val.remove(x)
                                 val['order_line'] = temp_val
-                                self.write({'order_line': [(2, order_line.id)]})
+                                # self.write({'order_line': [(2, order_line.id)]})
+                                x = (1, order_line.id, {'price_unit': 0})
+                                val['order_line'].append(x)
                                 self.write(val)
                                 product = voucher_applied.product_id
                                 product.lst_price = -voucher_applied.value
                                 if abs(product.lst_price) > self.amount_untaxed:
                                     product.lst_price = -self.amount_untaxed
-                                self.sudo().write({'order_line': [(0, False, {'name': product.name, 'product_id': product.id, 'price_unit': product.lst_price, 'product_uom_qty': 1.0, 'product_uom': 1, 'tax_id': []})]})
+                                self.sudo().write({'order_line': [(1, order_line.id, {'price_unit': product.lst_price})]})
                                 voucher_applied.sale_order_id = self.id
                                 voucher_applied.state = 'used'
                                 return {}
             return super(SaleOrder, self).write(val)
         else:
             return super(SaleOrder, self).write(val)
+
+    def action_cancel(self):
+        super(SaleOrder, self).action_cancel()
+        if len(self.voucher_ids.mapped('id')) != 0:
+            voucher_applied = self.voucher_ids
+            product = voucher_applied.product_id
+            order_line = self.order_line.search([('product_id', '=', product.id)])
+            self.sudo().write({'order_line': [(2, order_line.id)]})
+            self.voucher_ids = [(3, self.voucher_ids.mapped('id'))]

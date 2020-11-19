@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from datetime import datetime, timedelta
+ 
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
 
@@ -13,14 +15,14 @@ class VoucherProgram(models.Model):
     expiration_date = fields.Datetime(required=True)
     customer_category_ids = fields.Many2many('customer.category', string='Participants')
     voucher_rule_ids = fields.One2many('voucher.rule', 'voucher_program_id', string='Voucher rules')
-    voucher_report_ids = fields.One2many('voucher.report', 'voucher_program_id', string='Voucher Report')
+    voucher_report_ids = fields.One2many('voucher.report', 'voucher_program_id', string='Voucher Report', readonly=True)
     state = fields.Selection([
         ('draft', 'Draft'),
         ('confirm', 'Confirm'),
         ('done', 'Done')
     ], required=True, default='draft')
     filter_sale = fields.Float(compute='_get_voucher_report', string='Voucher value')
-    voucher_voucher_ids = fields.One2many('voucher.voucher', 'voucher_program_id', string='Voucher')
+    voucher_voucher_ids = fields.One2many('voucher.voucher', 'voucher_program_id', string='Voucher', readonly=True)
 
     @api.constrains('start_date', 'end_date')
     def _check_start_end_date(self):
@@ -59,6 +61,8 @@ class VoucherProgram(models.Model):
         }
     
     def action_confirm(self):
+        if (datetime.now() <= self.end_date):
+            raise ValidationError('Cannot confirm, end date > now')
         self.state = 'confirm'
         list1 = {}
         list2 = {}
@@ -86,7 +90,12 @@ class VoucherProgram(models.Model):
         return {}
 
     def action_done(self):
-        self.state = 'done'
+        self.env.cr.execute("""
+            UPDATE voucher_program
+            SET state = 'done'
+            WHERE id = %s;
+        """, (self.id,))
+        self.env.cr.commit()
         records = self.env['voucher.voucher'].sudo().search([('voucher_program_id', '=', self.id)])
         for record in records:
             if not record.state == 'used':
@@ -128,3 +137,8 @@ class VoucherProgram(models.Model):
                 self.env['voucher.report'].sudo().create(list1)
             return super(VoucherProgram, self).write(val)
         return super(VoucherProgram, self).write(val)
+
+    def unlink(self):
+        if self.state == 'confirm' or self.state == 'done':
+            raise ValidationError('Cannot delete     confirm or done voucher program')        
+        return super(VoucherProgram, self).unlink()

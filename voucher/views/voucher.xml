@@ -34,7 +34,7 @@
                     <header>
                         <button string='Report' class='btn-primary' type='object' name='action_report'/>
                         <button string='Confirm' class='btn-primary' type='object' name='action_confirm'
-                        attrs="{'invisible': [('state', '!=', 'draft')]}"/>
+                        attrs="{'invisible': [('state', 'in', ('confirm', 'done'))]}"/>
                         <button string='Done' class='btn-primary' type='object' name='action_done'
                         attrs="{'invisible': [('state', '!=', 'confirm')]}"/>
                         <field name="state" widget="statusbar"/>
@@ -62,7 +62,7 @@
                             </page>
                             <page string="Voucher">
                                 <field name="voucher_voucher_ids">
-                                    <tree string="Voucher">
+                                    <tree string="Voucher" decoration-success="state=='ongoing'" decoration-danger="state=='expired'" decoration-warning="state=='used'">
                                         <field name="name"/>
                                         <field name="expiration_date"/>
                                         <field name="partner_id"/>
@@ -86,7 +86,7 @@
                     <sheet>
                         <group>
                             <field name='voucher_report_ids'>
-                                <tree>
+                                <tree decoration-success="voucher_value!=0">
                                     <field name="partner_id">
                                         <field name='name'/>
                                     </field>
@@ -140,7 +140,7 @@
             <field name="name">voucher.voucher.tree.view</field>
             <field name="model">voucher.voucher</field>
             <field name="arch" type="xml">
-                <tree string="Voucher">
+                <tree string="Voucher" decoration-success="state=='ongoing'" decoration-danger="state=='expired'" decoration-warning="state=='used'">
                     <field name="name"/>
                     <field name="voucher_program_id"/>
                     <field name="expiration_date"/>
